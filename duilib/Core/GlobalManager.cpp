@@ -830,16 +830,15 @@ bool GlobalManager::IsZipResExist(const std::wstring& path)
 		if (file_path.empty())
 			return false;
 
-		static std::unordered_set<std::wstring> zip_path_cache;
+		static std::map<std::wstring, bool> zip_path_cache;
 		auto it = zip_path_cache.find(path);
 		if (it != zip_path_cache.end())
-			return true;
+			return it->second;
 
 		ZIPENTRY ze;
 		int i = 0;
 		bool find = FindZipItem(g_hzip, file_path.c_str(), true, &i, &ze) == ZR_OK;
-		if (find)
-			zip_path_cache.insert(path);
+		zip_path_cache[file_path] = find;
 
 		return find;
 	}
