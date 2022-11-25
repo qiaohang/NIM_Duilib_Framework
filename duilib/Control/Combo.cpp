@@ -111,6 +111,9 @@ LRESULT CComboWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
     else if( uMsg == WM_CLOSE ) {
+		m_pOwner->SelectItemInternal(m_pOwner->GetListBox()->GetCurSel());
+		((Box*)this->GetRoot())->RemoveAt(0);
+		m_pOwner->GetListBox()->SetWindow(nullptr, nullptr, false);
         m_pOwner->SetWindow(m_pOwner->GetWindow(), m_pOwner->GetParent(), false);
         m_pOwner->SetPos(m_pOwner->GetPos());
         m_pOwner->SetFocus();
@@ -119,9 +122,6 @@ LRESULT CComboWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (m_hWnd != (HWND)wParam)	{ 
 			m_bClosing = true;
 			PostMessage(WM_CLOSE);
-			m_pOwner->SelectItemInternal(m_pOwner->GetListBox()->GetCurSel());
-			((Box*)this->GetRoot())->RemoveAt(0);
-			m_pOwner->GetListBox()->PlaceHolder::SetWindow(nullptr, nullptr, false);
 		}
     }
 
@@ -236,7 +236,7 @@ void Combo::Deactivate()
 	if (!IsActivatable()) return;
 	if (!m_pWindow) return;
 
-	m_pWindow->Close();
+	m_pWindow->SendMessage(WM_CLOSE);
 	Invalidate();
 }
 
@@ -391,6 +391,7 @@ bool Combo::SelectItem(int iIndex, bool bTrigger)
     if (m_pWindow != NULL && bTrigger) {
         m_pWindow->SendNotify(this, kEventSelect, m_iCurSel, -1);
     }
+	return true;
 }
 
 Control* Combo::GetItemAt(int iIndex)
